@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import urllib2
+import json
+
+parser = argparse.ArgumentParser(description='Get the weather.')
+parser.add_argument('location', default='Chicago', help='where are you?', nargs='?')
+parser.add_argument('-u', '--unit', default='F', help='imperial or metric units')
+parser.add_argument('-n', '--number', default=False, help='return a number, no formatting', action='store_true')
+
+args = parser.parse_args()
+location = args.location
+unit = args.unit.upper()
+number = args.number
+
+url = 'http://api.openweathermap.org/data/2.5/weather?q=%s' % args.location
+
+temperature = json.loads(urllib2.urlopen(url).read())['main']['temp']
+
+if unit in ('F', 'C'):
+  if unit == 'F':
+    temperature = temperature * (9.0 / 5.0) - 459.67
+    temperature = '%.0f' % temperature
+  elif unit == 'C':
+    temperature -= 273.15
+    temperature = '%.1f' % temperature
+
+  if not number:
+    temperature += '°'
+
+print temperature
